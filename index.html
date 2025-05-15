@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>IAT Omofobia</title>
+  <script src="https://cdn.jsdelivr.net/npm/jspsych@7.3.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspsych-html-keyboard-response@7.3.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspsych-image-keyboard-response@7.3.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspsych-iat@7.3.1"></script>
+  <link href="https://cdn.jsdelivr.net/npm/jspsych@7.3.1/css/jspsych.css" rel="stylesheet" />
+</head>
+<body></body>
+
+<script>
+  const jsPsych = initJsPsych({
+    on_finish: () => jsPsych.data.displayData()
+  });
+
+  // Chiedi le prime 3 lettere del nome e del cognome
+  const participant_id = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '<p>Inserisci le prime 3 lettere del tuo nome e del tuo cognome, poi premi SPAZIO</p>',
+    choices: [" "],
+    prompt: '<input type="text" id="id_input" maxlength="6">',
+    on_finish: () => {
+      const input = document.getElementById('id_input');
+      jsPsych.data.addProperties({ participant: input ? input.value : 'anonimo' });
+    }
+  };
+
+  const attributeA = ['Affascinante', 'Amare', 'Piacere', 'Felice', 'Gradevole', 'Festeggiare', 'Eccellente', 'Glorioso'];
+  const attributeB = ['Tragico', 'Sofferenza', 'Tristezza', 'Rivoltante', 'Terribile', 'Negativo', 'Ripugnante', 'Disgustoso'];
+
+  const targetA_words = ['Persone Etero', 'Eterosessuale', 'Etero'];
+  const targetB_words = ['Persone Gay', 'Omosessuale', 'Gay'];
+
+  const targetA_images = ['hetero06.jpg', 'hetero13.jpg'];
+  const targetB_images = ['gay05.jpg', 'gay08.jpg', 'lesbian07.jpg', 'lesbian14.jpg'];
+
+  const iat = {
+    type: jsPsychIat,
+    stimulus: jsPsych.timelineVariable('stimulus'),
+    is_html: jsPsych.timelineVariable('is_html'),
+    attribute1: {
+      name: 'POSITIVO',
+      stimuli: attributeA,
+      side: 'left'
+    },
+    attribute2: {
+      name: 'NEGATIVO',
+      stimuli: attributeB,
+      side: 'right'
+    },
+    category1: {
+      name: 'ETEROSSESSUALI',
+      stimuli: targetA_words.concat(targetA_images.map(img => `<img src="${img}" width="150">`)),
+      side: 'left'
+    },
+    category2: {
+      name: 'OMOSESSUALI',
+      stimuli: targetB_words.concat(targetB_images.map(img => `<img src="${img}" width="150">`)),
+      side: 'right'
+    },
+    show_feedback: true,
+    trials_per_block: [20, 40, 20, 40, 40, 40, 40],
+    block_order: 'random'
+  };
+
+  const timeline = [participant_id, iat];
+
+  jsPsych.run(timeline);
+</script>
+</html>
